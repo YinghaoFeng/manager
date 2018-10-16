@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zeus.manager.perm.dao.IPermUserDao">
+
+    <resultMap id="PermUser" type="com.zeus.manager.perm.model.PermUserModel">
+        <result property="userId" column="user_id"/>
+        <result property="userCode" column="user_code"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="status" column="status"/>
+        <result property="roleId" column="role_id"/>
+        <result property="description" column="description"/>
+        <result property="userType" column="user_type"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="mobilePhone" column="mobile_phone"/>
+        <result property="email" column="email"/>
+        <result property="md5Pwd" column="md5_pwd"/>
+        <result property="ctime" column="c_time"/>
+        <result property="utime" column="u_time"/>
+    </resultMap>
+
+	<!-- 用于select查询公用抽取的列 -->
+	<sql id="columns">
+	    <![CDATA[
+        user_id ,user_code ,user_name ,password ,status ,role_id ,description ,user_type ,nick_name ,mobile_phone ,email ,md5_pwd ,c_time ,u_time 
+	    ]]>
+	</sql>
+	
+    <insert id="insert" >
+    <![CDATA[
+        INSERT INTO m_perm_user (
+	        user_id  ,
+	        user_code  ,
+	        user_name  ,
+	        password  ,
+	        status  ,
+	        role_id  ,
+	        description  ,
+	        user_type  ,
+	        nick_name  ,
+	        mobile_phone  ,
+	        email  ,
+	        md5_pwd  ,
+	        c_time  ,
+	        u_time  
+        ) VALUES (
+        	#{userId, jdbcType=INTEGER} ,
+        	#{userCode, jdbcType=INTEGER} ,
+        	#{userName, jdbcType=VARCHAR} ,
+        	#{password, jdbcType=VARCHAR} ,
+        	#{status, jdbcType=CHAR} ,
+        	#{roleId, jdbcType=VARCHAR} ,
+        	#{description, jdbcType=VARCHAR} ,
+        	#{userType, jdbcType=VARCHAR} ,
+        	#{nickName, jdbcType=VARCHAR} ,
+        	#{mobilePhone, jdbcType=VARCHAR} ,
+        	#{email, jdbcType=VARCHAR} ,
+        	#{md5Pwd, jdbcType=VARCHAR} ,
+        	#{ctime, jdbcType=TIMESTAMP} ,
+        	#{utime, jdbcType=TIMESTAMP} 
+        )
+    ]]>
+    </insert>
+
+    <update id="update" >
+        UPDATE m_perm_user SET
+	        <if test="userCode != null">user_code = #{userCode, jdbcType=INTEGER} ,</if>
+	        <if test="userName != null">user_name = #{userName, jdbcType=VARCHAR} ,</if>
+	        <if test="password != null">password = #{password, jdbcType=VARCHAR} ,</if>
+	        <if test="status != null">status = #{status, jdbcType=CHAR} ,</if>
+	        <if test="roleId != null">role_id = #{roleId, jdbcType=VARCHAR} ,</if>
+	        <if test="description != null">description = #{description, jdbcType=VARCHAR} ,</if>
+	        <if test="userType != null">user_type = #{userType, jdbcType=VARCHAR} ,</if>
+	        <if test="nickName != null">nick_name = #{nickName, jdbcType=VARCHAR} ,</if>
+	        <if test="mobilePhone != null">mobile_phone = #{mobilePhone, jdbcType=VARCHAR} ,</if>
+	        <if test="email != null">email = #{email, jdbcType=VARCHAR} ,</if>
+	        <if test="md5Pwd != null">md5_pwd = #{md5Pwd, jdbcType=VARCHAR} ,</if>
+	        <if test="ctime != null">c_time = #{ctime, jdbcType=TIMESTAMP} ,</if>
+	        <if test="utime != null">u_time = #{utime, jdbcType=TIMESTAMP} </if>
+        WHERE 
+	        user_id = #{userId} 
+    </update>
+
+    <delete id="delete">
+    <![CDATA[
+        DELETE FROM m_perm_user WHERE
+        user_id = #{userId} 
+    ]]>
+    </delete>
+    
+    <select id="getById" resultMap="PermUser">
+	    SELECT <include refid="columns"/>
+	    <![CDATA[
+	        FROM m_perm_user 
+	        WHERE 
+		        user_id = #{userId} 
+	    ]]>
+    </select>
+
+	<sql id="findWhere">
+	    <where>
+					<if test="userName != null">
+						AND user_name = #{userName}
+					</if>
+					<if test="password != null">
+						AND password = #{password}
+					</if>
+					<if test="status != null">
+						AND status = #{status}
+					</if>
+					<if test="roleId != null">
+						AND role_id = #{roleId}
+					</if>
+					<if test="description != null">
+						AND description = #{description}
+					</if>
+					<if test="userType != null">
+						AND user_type = #{userType}
+					</if>
+					<if test="nickName != null">
+						AND nick_name = #{nickName}
+					</if>
+					<if test="mobilePhone != null">
+						AND mobile_phone = #{mobilePhone}
+					</if>
+					<if test="email != null">
+						AND email = #{email}
+					</if>
+					<if test="md5Pwd != null">
+						AND md5_pwd = #{md5Pwd}
+					</if>
+	    </where>
+	</sql>
+	 
+    <select id="findPageCount" resultType="int">
+        SELECT count(*) FROM m_perm_user <include refid="findWhere"/>    
+    </select>
+    
+    <!--
+    	分页查询已经使用Dialect进行分页,也可以不使用Dialect直接编写分页
+    	因为分页查询将传 #offset#,#pageSize#,#lastRows# 三个参数,不同的数据库可以根于此三个参数属性应用不同的分页实现
+    -->
+    <select id="findPage" resultMap="PermUser">
+    	SELECT <include refid="columns"/> FROM m_perm_user 
+		<include refid="findWhere"/>
+		<if test="sortColumns != null">
+			ORDER BY ${sortColumns}
+		</if>
+		limit #{pageNo},#{pageSize}
+    </select>
+
+    <select id="getByUserName" resultMap="PermUser" >
+	    SELECT <include refid="columns"/>
+	    <![CDATA[
+	        FROM m_perm_user WHERE user_name = #userName#
+	    ]]>
+    </select>
+    
+	
+	<select id="find" resultMap="PermUser">
+	    SELECT <include refid="columns"/> FROM m_perm_user 
+		<include refid="findWhere"/>
+		<if test="sortColumns != null">
+			ORDER BY ${sortColumns}
+		</if>
+		<if test="pageNo != null and pageSize != null">
+			limit #{pageNo},#{pageSize}
+		</if>
+    </select>
+	
+</mapper>
+
